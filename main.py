@@ -95,7 +95,7 @@ rep = input("To have the reverse form type i")
 print("------------------------------- ")
 
 
-simply = Simply(nbr_variable)
+simply = Simply(nbr_variable, ['v'])
 if rep != "i":
     t_essentiel, t_supplementaire, nu_synthese = simply(t1,t0)
     print("Direct form")

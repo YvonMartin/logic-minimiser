@@ -21,42 +21,7 @@ __version__ = "0.1"
 __author_email__ = 'yvon.l.martin@gmail.com'
 
 
-"""-------------------------------------
-class Decode_tuple:
-    def __init__(self, nbr):
-     self.nbr = nbr
 
-
-    def __call__( self, tup_terme, typ):
-        self.tup_terme = tup_terme
-        self.typ = typ
-
-        def decode_bin(tup_terme, nbr):
-            return "".join(['-' if msq & (1 << k) else '1' if terme & (1 << k )
-                        else '0' for k in range(nbr-1, -1, -1)])
-        if isinstance(typ, int):
-#             retour sous forme 0-1
-            return decode_bin(tup_terme, nbr)
-        else:
-#             retour sous forme variables  par ex (ABC)
-            term01 = decode_bin(tup_terme, nbr)
-            return "".join([''if i == '-' else j if i == '1' else j+"'" if i == '0'else ''
-                for(i ,j) in zip(terme01,typ)])
-
-
-
-
-
-
-            if isinstance(typ,int):
-            terme, msq = tup_terme
-                return "".join(['-' if msq & (1 << k) else '1' if terme & (1 << k )
-                            else '0' for k in range(nbr-1, -1, -1)])
-            else:
-            terme, msq = tup_terme
-            return "".join(['-' if msq & (1 << k) else '1' if terme & (1 << k )
-                        else '0' for k in range(nbr-1, -1, -1)])
-"""
 def decode_bin(tup_terme, nbr):
     """
     decode the tupple (terme, masque) to make a string
@@ -138,12 +103,19 @@ def input_tables_01(data_in, nbr_variable):
 class Simply:
     """
     calculates all reduced optimal terms from minterms (terms 1) and maxterms (terms 0)
-    args:
-        table_1 (liste of int) that describe when the output function is one.
-            e.g. [0, 1, 4, 5, 8, 6, 7, 14, 15]
-        table_2 (liste of int) that describe when the output function is zero.
-            e.g. [2, 3, 9,13]
-        nbr Number of bits in a term.
+    Instanciation of the class
+    	args:
+            number of variables in a term
+            options list [v,.,....]
+                v : verbose mode
+			
+    use of the class	
+        args:
+            table_1 (liste of int) that describe when the output function is one.
+                e.g. [0, 1, 4, 5, 8, 6, 7, 14, 15]
+            table_2 (liste of int) that describe when the output function is zero.
+                e.g. [2, 3, 9,13]
+
     return:
         Complete solutions in the form of a list of 3 sub-lists
         -essential terms in the first sub-list
@@ -159,8 +131,9 @@ class Simply:
     """==========================================================================="""
 
     #Initialize an instance with the number of variables of the function
-    def __init__(self,nbr):
+    def __init__(self, nbr, arg_list = []):
         self.nbr = nbr
+        self.arg_list = arg_list
 
     # Call of the instance with the binary tables of the minterms and Max terms as parameter
     def __call__(self, tbl_1, tbl_0):
@@ -345,11 +318,22 @@ class Simply:
 
 
         table_essentiel, table_1_restant = __terme_essentiel(table_1, table_0, self.nbr)
+        if 'v' in self.arg_list:
+            print( '\n-- discovered', len(table_essentiel), 'essential term(s) --')
+            print('-- remains to be covered', len(table_1_restant), '--\n')
+
         table_terme_supl = __termes_supplementaires(table_1_restant, table_0, self.nbr)
+        if 'v' in self.arg_list:
+            print( '-- discovered', len(table_terme_supl), 'additional terms --')
+
         tbl_synt, large = __tbl_synthese(table_1_restant, table_terme_supl, self.nbr)
-        print ('---- tbl_synthese ok ', len(tbl_synt), large, '----')
+        if 'v' in self.arg_list:
+            print('\n-- synthese:', large, 'term(s) to cover', len(tbl_synt),'minterms remaining --')
+
         synthese = __terme_supp(0, tbl_synt, large)
-        print ('---- synthese ok ', len(synthese), large, '----')
+        if 'v' in self.arg_list:
+            print ('\n---- Synthese ok ----\n')
+
         sol = __numero_terme_sup(synthese, large)
         return table_essentiel, table_terme_supl, sol
 
